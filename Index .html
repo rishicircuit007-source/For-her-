@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>404 Not Found</title>
+    <style>
+        :root { --p: #ff7b72; --bg: #0d1117; }
+        * { box-sizing: border-box; }
+        body, html { 
+            margin: 0; padding: 0; width: 100%; height: 100%; 
+            background: var(--bg); font-family: 'Segoe UI', sans-serif; 
+            color: #c9d1d9; overflow: hidden; 
+        }
+
+        /* 404 SCREEN */
+        #error-screen { 
+            display: none; padding: 50px; width: 100%; height: 100%; 
+            flex-direction: column; justify-content: flex-start; z-index: 999;
+            background: var(--bg); position: absolute;
+        }
+        #error-screen h1 { font-size: 40px; color: white; margin-bottom: 5px; }
+        #error-screen p { color: #8b949e; font-size: 18px; margin: 5px 0; }
+
+        /* BACKGROUND ELEMENTS */
+        #bg-container { position: absolute; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
+        .bg-heart { 
+            position: absolute; color: rgba(255, 123, 114, 0.2); 
+            font-size: 20px; animation: floatUp 8s infinite linear; 
+        }
+        @keyframes floatUp {
+            0% { transform: translateY(110vh) rotate(0deg); opacity: 0; }
+            10% { opacity: 0.8; }
+            100% { transform: translateY(-20vh) rotate(360deg); opacity: 0; }
+        }
+
+        /* CONTENT LAYER */
+        #active-session { 
+            display: flex; width: 100%; height: 100%; 
+            justify-content: center; align-items: center; z-index: 10; 
+        }
+        
+        .clickable-heart { 
+            position: absolute; font-size: 50px; cursor: pointer; 
+            user-select: none; z-index: 100; transition: transform 0.1s; 
+        }
+
+        .card { 
+            display: none; background: #161b22; border: 1px solid #30363d; 
+            border-radius: 15px; padding: 30px; width: 90%; max-width: 500px; 
+            max-height: 70vh; position: relative; box-shadow: 0 10px 40px rgba(0,0,0,0.8); 
+            z-index: 50; overflow-y: auto; scroll-behavior: smooth;
+        }
+        
+        #intro { text-align: center; z-index: 50; }
+        .btn { 
+            padding: 15px 35px; background: var(--p); border: none; 
+            border-radius: 50px; color: white; font-weight: bold; 
+            cursor: pointer; margin-top: 20px; z-index: 60; position: relative;
+        }
+        .shake { animation: shakeEffect 0.1s infinite; }
+        @keyframes shakeEffect { 0% { transform: translate(2px, 2px); } 50% { transform: translate(-2px, -2px); } }
+        
+        .card::-webkit-scrollbar { width: 5px; }
+        .card::-webkit-scrollbar-thumb { background: #30363d; border-radius: 10px; }
+    </style>
+</head>
+<body>
+
+    <div id="bg-container"></div>
+
+    <div id="error-screen">
+        <h1>404 Not Found</h1>
+        <p>The requested URL was not found on this server.</p>
+        <hr style="border:0; border-top:1px solid #30363d; margin: 20px 0;">
+        <p style="font-size:14px"><i>Apache/2.4.41 (Ubuntu) Server at memory-storage Port 443</i></p>
+    </div>
+
+    <div id="active-session">
+        <div id="intro">
+            <h1 style="color:white">Memory Decryption Required ❤️</h1>
+            <p>Catch 5 floating hearts to reveal the message.</p>
+            <div id="score" style="font-size: 20px; color: var(--p); margin: 15px 0;">Decrypted: 0 / 5</div>
+            <button class="btn" id="start-btn">START DECRYPTION</button>
+        </div>
+
+        <div id="card" class="card">
+            <div id="msg" style="line-height:1.8; white-space:pre-wrap;"></div>
+            <div id="destruct-ui" style="color:#f85149; margin-top:20px; display:none; font-weight:bold; font-family: monospace;">
+                SYSTEM_PURGE: AUTO-DELETING IN <span id="timer">5</span>s
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // NEW UNIQUE KEY TO RESET THE TEST FOR YOU
+        const LOCK_KEY = "anniversary_final_version_v103";
+
+        if (localStorage.getItem(LOCK_KEY) === "true") {
+            document.getElementById("active-session").style.display = "none";
+            document.getElementById("error-screen").style.display = "flex";
+        }
+
+        const bgContainer = document.getElementById('bg-container');
+        function createBgHeart() {
+            if (localStorage.getItem(LOCK_KEY) === "true") return;
+            const h = document.createElement('div');
+            h.className = 'bg-heart';
+            h.innerHTML = ['❤️', '🌸', '🌹', '✨'][Math.floor(Math.random() * 4)];
+            h.style.left = Math.random() * 100 + 'vw';
+            h.style.animationDuration = (Math.random() * 5 + 5) + 's';
+            bgContainer.appendChild(h);
+            setTimeout(() => h.remove(), 10000);
+        }
+        setInterval(createBgHeart, 600);
+
+        let score = 0;
+        const startBtn = document.getElementById('start-btn');
+        const intro = document.getElementById('intro');
+        const card = document.getElementById('card');
+
+        startBtn.onclick = () => {
+            startBtn.style.display = 'none';
+            spawnGameHeart();
+        };
+
+        function spawnGameHeart() {
+            if (score >= 5) {
+                intro.style.display = 'none';
+                card.style.display = 'block';
+                startTyping();
+                return;
+            }
+            const gh = document.createElement('div');
+            gh.className = 'clickable-heart';
+            gh.innerHTML = '❤️';
+            gh.style.top = (20 + Math.random() * 60) + '%';
+            gh.style.left = (10 + Math.random() * 80) + '%';
+            
+            gh.onclick = () => {
+                score++;
+                document.getElementById('score').innerText = `Decrypted: ${score} / 5`;
+                gh.remove();
+                spawnGameHeart();
+            };
+            document.body.appendChild(gh);
+        }
+
+        const message = `Happy 1 Month Anniversary. 🌹
+
+Looking back at these past 30 days, it feels like we've lived a whole year's worth of emotions. Most of our story has been written through these glowing screens—thousands of messages, all the sneaky terrrace calls where I didn't want to hang up, and the comfort of seeing your face through a lens. Even though we were apart, you made me feel closer to someone than I’ve ever been.
+
+But then, we met. 
+
+That one day... I don’t think I have the words to describe it. It's a day I will carry in my heart until my very last day on Earth. Everything became real in that moment. The way the world felt different because you were standing in it with me—it was perfect. 
+
+I know I’m not perfect. I know I’ve made those little mistakes, the silly slip-ups, or moments where I didn't quite get it right. But what makes us "us" is how we stayed strong through it all. We didn't let the small things break us; we used them to grow closer.
+
+Thank you for trusting me. Thank you for believing in me when I didn't even believe in myself. You have a way of seeing the best in me, and it makes me want to be the man you deserve. 
+
+I can’t put into words how much I love you, but I hope this little piece of code shows you that you’re always on my mind. 
+
+Here’s to many, many more months of making memories. 🥂✨
+
+-------------------------------------------
+[SECURITY NOTICE]: Decrypted session complete.
+Purging sensitive data to ensure privacy.`;
+
+        function startTyping() {
+            let i = 0;
+            const target = document.getElementById("msg");
+            function typing() {
+                if (i < message.length) {
+                    target.textContent += message.charAt(i);
+                    i++;
+                    card.scrollTop = card.scrollHeight; 
+                    setTimeout(typing, 45);
+                } else {
+                    initPurge();
+                }
+            }
+            typing();
+        }
+
+        function initPurge() {
+            card.classList.add('shake');
+            document.getElementById('destruct-ui').style.display = 'block';
+            card.scrollTop = card.scrollHeight;
+            let countdown = 5;
+            const timer = setInterval(() => {
+                countdown--;
+                document.getElementById('timer').innerText = countdown;
+                if (countdown <= 0) {
+                    clearInterval(timer);
+                    localStorage.setItem(LOCK_KEY, "true");
+                    location.reload(); 
+                }
+            }, 1000);
+        }
+    </script>
+</body>
+</html>
